@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour
     public float fourthScore = 0f;
     public float fifthScore = 0f;
     public float lastScore = 0f;
-    public GameObject gameStart;
+    public GameObject startingArea;
     public GameObject gameEnd;
     public bool firstEnd = true;
     public bool firstSecond = true;
@@ -29,15 +29,18 @@ public class GameManager : MonoBehaviour
     public bool firstFourth = true;
     public bool firstFifth = true;
     public bool touchedEnd = false;
+    public GameObject timerTxt;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameStart.SetActive(true);
+        startingArea.SetActive(true);
         timerActive = false;
         finishArea.SetActive(false);
         gameEnd.SetActive(false);
         hsText.SetActive(false);
+        timerTxt.SetActive(false);
+        
     }
 
     // Update is called once per frame
@@ -56,8 +59,10 @@ public class GameManager : MonoBehaviour
 
     public void StopTimer()
     {
+        hsText.SetActive(true);
         timerActive = false;
         gameEnd.SetActive(true);
+        timerTxt.SetActive(false);
         if (touchedEnd)
         {
             lastScore = totalTime;
@@ -141,8 +146,9 @@ public class GameManager : MonoBehaviour
     public void GameStart()
     {
         timerActive = true;
-        gameStart.SetActive(false);
+        startingArea.SetActive(false);
         gameEnd.SetActive(false);
         hsText.SetActive(false);
+        timerTxt.SetActive(true);
     }
 }

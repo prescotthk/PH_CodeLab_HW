@@ -45,6 +45,8 @@ public class PlayerBehavior : MonoBehaviour
         startingPosition = transform.position;
 
         startingSpeed = speed;
+        
+        myManager.timerActive = false;
 
     }
 

@@ -18,6 +18,7 @@ void Start()
     {
         meteorSpeed = Random.Range(2,4);
         startPos = transform.position;
+        myManager.timerActive = false;
     }
 
     // Update is called once per frame

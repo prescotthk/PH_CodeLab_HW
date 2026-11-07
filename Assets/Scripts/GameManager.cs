@@ -1,154 +1,118 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
-    public TMP_Text timerText;
-    public TMP_Text highscoreText;
-    public TMP_Text secondText;
-    public TMP_Text thirdText;
-    public TMP_Text fourthText;
-    public TMP_Text fifthText;
-    public TMP_Text lastScoreText;
-    public GameObject hsText;
-    public bool timerActive = false;
-    public float totalTime = 0f;
-    public GameObject finishArea;
-    public float currentScore = 0f;
-    public float highestScore = 0f;
-    public float secondScore = 0f;
-    public float thirdScore = 0f;
-    public float fourthScore = 0f;
-    public float fifthScore = 0f;
-    public float lastScore = 0f;
-    public GameObject startingArea;
-    public GameObject gameEnd;
-    public bool firstEnd = true;
-    public bool firstSecond = true;
-    public bool firstThird = true;
-    public bool firstFourth = true;
-    public bool firstFifth = true;
-    public bool touchedEnd = false;
-    public GameObject timerTxt;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        startingArea.SetActive(true);
-        timerActive = false;
-        finishArea.SetActive(false);
-        gameEnd.SetActive(false);
-        hsText.SetActive(false);
-        timerTxt.SetActive(false);
-        
-    }
+    public GameObject startingPlatform;
 
-    // Update is called once per frame
+    public GameObject player;
+    public GameObject goomba;
+    public GameObject firstBall;
+
+    public GameObject firstHinge;
+
+    public Transform spawnPoint;
+
+    public GameObject endScreen;
+
+    public bool canMove = true;
+
+    public bool gameActive = true;
+
+    public float playerHP = 3f;
+
+    public float graceTimer = 0f;
+
+    public bool canTakeDamage = true;
+
+    public bool immuneTimer = false;
+
+    public bool byeGoomba = false;
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Update()
     {
-        if (timerActive)
+        if(gameActive == false)
         {
-            totalTime += Time.deltaTime;
-            timerText.text = totalTime.ToString("F2");
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                gameStart();
+            }
         }
-        if (currentScore == 800)
+
+        if (immuneTimer)
         {
-            finishArea.SetActive(true);
+            graceTimer += Time.deltaTime;
+            if (graceTimer >= 3f)
+            {
+                canTakeDamage = true;
+                immuneTimer = false;
+                graceTimer = 0f;
+            }
         }
     }
 
-    public void StopTimer()
+    public void takenDamage()
     {
-        hsText.SetActive(true);
-        timerActive = false;
-        gameEnd.SetActive(true);
-        timerTxt.SetActive(false);
-        if (touchedEnd)
+        if (canTakeDamage)
         {
-            lastScore = totalTime;
-            
-            if (firstEnd)
+            playerHP -= 1f;
+            Debug.Log("playerHP: " + playerHP);
+            if (playerHP <= 0f)
             {
-                highestScore = totalTime;
-                firstEnd = false;
+                toSpawn();
             }
-            else if (totalTime == 100)
+            else
             {
-
+                canTakeDamage = false;
+                immuneTimer = true;
             }
-
-            else if (totalTime <= highestScore)
-            {
-                fifthScore = fourthScore;
-                fourthScore = thirdScore;
-                thirdScore = secondScore;
-                secondScore = highestScore;
-                highestScore = totalTime;
-            }
-            else if (firstSecond)
-            {
-                secondScore = totalTime;
-                firstSecond = false;
-            }
-            else if (totalTime <= secondScore)
-            {
-                fifthScore = fourthScore;
-                fourthScore = thirdScore;
-                thirdScore = secondScore;
-                secondScore = totalTime;
-            }
-            else if (firstThird)
-            {
-                thirdScore = totalTime;
-                firstThird = false;
-            }
-            else if (totalTime <= thirdScore)
-            {
-                fifthScore = fourthScore;
-                fourthScore = thirdScore;
-                thirdScore = totalTime;
-            }
-            else if (firstFourth)
-            {
-                fourthScore = totalTime;
-                firstFourth = false;
-            }
-            else if (totalTime <= fourthScore)
-            {
-                fifthScore = fourthScore;
-                fourthScore = totalTime;
-            }
-            else if (firstFifth)
-            {
-                fifthScore = totalTime;
-                firstFifth = false;
-            }
-            else if (totalTime <= fifthScore)
-            {
-                fifthScore = totalTime;
-            }
-
-            touchedEnd = false;
         }
-        
-        lastScoreText.text = lastScore.ToString("F2");
-        lastScore = 0f;
-        currentScore = 0f;
-        totalTime = 0f;
-        highscoreText.text = highestScore.ToString("F2");
-        secondText.text = secondScore.ToString("F2");
-        thirdText.text = thirdScore.ToString("F2");
-        fourthText.text = fourthScore.ToString("F2");
-        fifthText.text = fifthScore.ToString("F2");
-        hsText.SetActive(true);
+    }
+    
+    public void firstStage()
+    {
+        startingPlatform.SetActive(false);
+        Debug.Log("Triggered");
     }
 
-    public void GameStart()
+    public void teleportPlayer()
     {
-        timerActive = true;
-        startingArea.SetActive(false);
-        gameEnd.SetActive(false);
-        hsText.SetActive(false);
-        timerTxt.SetActive(true);
+        player.transform.position = new Vector3(-7.43f, 3.28f, 0f);
+    }
+
+    public void triggerHitbox()
+    {
+        firstBall.GetComponent<Rigidbody2D>().isKinematic = false;
+        firstHinge.GetComponent<Rigidbody2D>().isKinematic = false;
+    }
+
+    public void toSpawn()
+    {
+        player.transform.position = spawnPoint.position;
+        playerHP = 3f;
+        goomba.SetActive(true);
+        byeGoomba = false;
+    }
+
+    public void gameEnd()
+    {
+        endScreen.SetActive(true);
+        gameActive = false;
+        canMove = false;
+    }
+
+    public void gameStart()
+    {
+        endScreen.SetActive(false);
+        toSpawn();
+        gameActive = true;
+        canMove = true;
+        goomba.SetActive(true);
+    }
+
+    public void goombaDestroyed()
+    {
+        goomba.SetActive(false);
+        byeGoomba = true;
     }
 }
